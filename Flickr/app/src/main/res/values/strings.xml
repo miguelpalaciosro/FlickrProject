@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Flickr</string>
+    <string name="sample_show_log">Show Log</string>
+    <string name="sample_hide_log">Hide Log</string>
+    <string name="intro_message">
+        <![CDATA[
+
+
+            A basic sample which shows how to use SlidingTabLayout to display a custom
+            ViewPager title strip which gives continuous feedback to the user when scrolling.
+
+
+        ]]>
+    </string>
+</resources>
