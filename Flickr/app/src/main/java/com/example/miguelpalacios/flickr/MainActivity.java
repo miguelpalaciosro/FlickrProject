@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.viewpagerindicator.CirclePageIndicator;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
@@ -31,7 +32,7 @@ public class MainActivity extends FragmentActivity {
     CirclePageIndicator indicator;
     SwipeRefreshLayout swipeRefreshLayout;
     FlickrClient client;
-    int page = 2;
+    int page = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +51,11 @@ public class MainActivity extends FragmentActivity {
     /******************************************************************************/
     public void getPublicTimeline() {
         client = new FlickrClient();
+
         client.getInterestingnessList(new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Log.d("DEBUG****", "getPublicTimeline onSuccess()");
                 PhotoCollection collection = new PhotoCollection(responseBody);
                 ArrayList<Photo> photoList = collection.getPhotos();
                 pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), photoList);
@@ -65,9 +68,8 @@ public class MainActivity extends FragmentActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 Log.d("DEBUG", "Failed getInterestingnessList, status code " + statusCode);
-
             }
-        });
+        },page);
 
     }
 
@@ -75,30 +77,14 @@ public class MainActivity extends FragmentActivity {
     /* This method initialize the layouts and resize them.                        */
     /******************************************************************************/
     public void setLayouts(){
-        // Get size of screen
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
-
-        // Identify layouts and resize them
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.relative);
-        ViewGroup.LayoutParams layout_description = relativeLayout.getLayoutParams();
-        layout_description.width = width;
-        layout_description.height = height;
-
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        ViewGroup.LayoutParams pagerParams = viewPager.getLayoutParams();
-        pagerParams.width = width;
-        pagerParams.height = height - 35;
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getNextPhotos();
                 page++;
+                getNextPhotos();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -109,7 +95,7 @@ public class MainActivity extends FragmentActivity {
     /* This method initialize the layouts and resize them.                        */
     /******************************************************************************/
     public void getNextPhotos(){
-        client.getNextInterestingnessList(new AsyncHttpResponseHandler() {
+        client.getInterestingnessList(new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Log.d("DEBUG****", "onSuccess()");
@@ -146,25 +132,12 @@ public class MainActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             Photo photo = photoList.get(position);
-            switch(position) {
-                case 0:
-                    return ScreenSlidePageFragment.newInstance(photo.getTitle(), photo.getUrl());
-                case 1:
-                    return ScreenSlidePageFragment.newInstance(photo.getTitle(), photo.getUrl());
-                case 2:
-                    return ScreenSlidePageFragment.newInstance(photo.getTitle(), photo.getUrl());
-                case 3:
-                    return ScreenSlidePageFragment.newInstance(photo.getTitle(), photo.getUrl());
-                case 4:
-                    return ScreenSlidePageFragment.newInstance(photo.getTitle(), photo.getUrl());
-                default:
-                    return null;
-            }
+            return ScreenSlidePageFragment.newInstance(photo.getTitle(), photo.getUrl());
         }
 
         @Override
         public int getCount() {
-            return 5;
+            return photoList.size();
         }
     }
 }

@@ -6,6 +6,11 @@ import android.util.Log;
 import com.loopj.android.http.*;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
+import cz.msebera.android.httpclient.Header;
+
 /******************************************************************************/
 /* This class will take care of getting the data from Flicker API.            */
 /* Here is set the key to make the call.                                      */
@@ -21,27 +26,21 @@ public class FlickrClient {
 
     /******************************************************************************/
     /* Constructor will set the Key to be ready to make calls to the API.         */
-    /* It also set the photos recieved per page.                                  */
+    /* It also set the photos received per page.                                  */
     /******************************************************************************/
     public FlickrClient() {
         params.put("api_key", REST_KEY);
         params.put("per_page", 5);
+
+
     }
 
     /******************************************************************************/
-    /* This method will make a call to get a list of intersting photos            */
+    /* This method will make a call to get a list of interesting photos           */
     /******************************************************************************/
-    public void getInterestingnessList(AsyncHttpResponseHandler handler) {
-        client.get(REST_URL + "/?format-json&method=flickr.interestingness.getList", params, handler);
-        Log.d("DEBUG", "Sending API call to getInterestingnessList");
-    }
-
-    /******************************************************************************/
-    /* This method will make a call to get a list of the new intersting photos    */
-    /******************************************************************************/
-    public void getNextInterestingnessList(AsyncHttpResponseHandler handler, int nextNum) {
-        params.put("page", nextNum);
-        client.get(REST_URL + "/?format-json&method=flickr.interestingness.getList", params, handler);
+    public void getInterestingnessList(AsyncHttpResponseHandler handler, int pageNum) {
+        params.put("page", pageNum);
+        client.get(REST_URL + "/?method=flickr.interestingness.getList&format=rest", params, handler);
         Log.d("DEBUG", "Sending API call to getNextInterestingnessList");
     }
 
